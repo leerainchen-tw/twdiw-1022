@@ -1,0 +1,10 @@
+steps:
+  - name: 'gcr.io/cloud-builders/npm'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        npm config set registry https://registry.npmjs.org/
+        NPM_CONFIG_REGISTRY=https://registry.npmjs.org/ npm ci --quiet --no-fund --no-audit
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: ['beta', 'run', 'deploy', '${_SERVICE_NAME}', '--image', '${_IMAGE_NAME}', '--region', '${_REGION}', '--platform', 'managed', '--allow-unauthenticated', '--set-env-vars', 'VC_SERNUM=${_VC_SERNUM},VC_UID=${_VC_UID},ISSUER_ACCESS_TOKEN=${_ISSUER_ACCESS_TOKEN},VERIFIER_SPORT_REF=${_VERIFIER_SPORT_REF},VERIFIER_PARENT_REF=${_VERIFIER_PARENT_REF},VERIFIER_ACCESS_TOKEN=${_VERIFIER_ACCESS_TOKEN}']
