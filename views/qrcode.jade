@@ -1,0 +1,34 @@
+extends layout
+
+block content
+  h1(style="text-align: left") 里仁高中-數位學生卡申請
+  img.img-fluid.d-block.rounded.mb-4(src="/images/rain_school.jpg" alt="rain_school" style="max-width: 400px")
+
+  ul.nav.nav-tabs.mb-4
+    li.nav-item
+      a.nav-link.active(href="/") 申請學生卡
+    li.nav-item
+      a.nav-link(href="/resta_checkin") 餐廳（驗證)
+    li.nav-item
+      a.nav-link(href="/library_checkin") 圖書館(驗證)
+    li.nav-item
+      a.nav-link(href="/lab_checkin") 實驗室(驗證)
+    li.nav-item
+      a.nav-link(href="/gym_checkin") 體育館(驗證)
+  
+
+
+      div(style="background: #f9fafb; border-radius: 8px; padding: 32px")
+        h3(style="font-size: 20px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center")
+          div(style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; margin-right: 12px; background: #fb923c; color: white; font-size: 18px; font-weight: 600; border-radius: 50%") 
+          | 取得數位學生卡
+
+        p(style="text-align: center; margin-bottom: 16px") 請用數位皮夾 app 掃描或點擊連結以取得您的數位學生卡
+
+
+              div(style="background: white; padding: 24px; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center")
+                p(style="font-size: 14px; color: #6b7280; margin-bottom: 16px") 
+                
+                img(alt="QR Code" style="width: 200px; height: 200px" src=qrCodeData loading="lazy")
+
+               

@@ -1,0 +1,105 @@
+extends layout
+
+block content
+
+  h5.text-left  數位憑證場景創新賽
+  h1.text-left  里仁高中-數位學生卡申請 
+  img.img-fluid.d-block.rounded.mb-4(src="/images/rain_school.jpg" alt="rain_school" style="max-width: 400px")
+
+  ul.nav.nav-tabs.mb-4
+    li.nav-item
+      a.nav-link.active(href="/") 申請學生卡
+    li.nav-item
+      a.nav-link(href="/resta_checkin") 餐廳（驗證)
+    li.nav-item
+      a.nav-link(href="/library_checkin") 圖書館(驗證)
+    li.nav-item
+      a.nav-link(href="/lab_checkin") 實驗室(驗證)
+    li.nav-item
+      a.nav-link(href="/gym_checkin") 體育館(驗證)
+
+
+  .card.mb-4.shadow-sm
+    .card-body
+      .alert.alert-primary.mb-4
+        h3.h5.fw-bold.mb-3 里仁高中發卡系統
+        p.text-secondary
+          | 這是一個 發卡系統的測試網頁。
+        .card.mt-3
+          .card-body
+            h4.h6.fw-bold.mb-2 可申請的驗證類型
+            ul.text-secondary
+              li.mb-2 
+                strong 圖書館：
+                | 為學生卡提供借還書服務
+              li.mb-2 
+                strong 餐廳：
+                | 為學生卡提供用餐服務
+              li.mb-2 
+                strong 實驗室：
+                | 為學生卡提供實驗室借用服務
+              li.mb-2 
+                strong 體育館：
+                | 為學生卡提供運動場地與器材借用服務
+            p.small.text-muted.mt-3
+              | 透過數位學生卡驗證身份，簡化身份驗證流程
+
+
+      .card.bg-light
+        .card-body
+          h3.h5.fw-bold.mb-3.d-flex.align-items-center
+            span.badge.bg-warning.rounded-circle.me-2.p-2 貳
+            | 取得數位學生卡
+
+          p.text-center.mb-3 請填寫以下資訊以取得您的數位學生卡 QR Code
+
+          form.mx-auto(style="max-width: 480px" action="/generateVC" method="POST")
+            .mb-3
+              label.form-label(for="name") 姓名：(必填，只能輸入中英文數字和_)
+              input#name.form-control(type="text" name="name" pattern="[a-zA-Z0-9\u4e00-\u9fa5_]+" title="只能輸入中英文數字和_" required)
+            
+            .mb-3
+              label.form-label(for="id_number") 身份證字號：(必填，只能輸入英文與數字)
+              input#id_number.form-control(type="text" name="id_number" pattern="[a-zA-Z0-9_]+" title="只能輸入英文與數字" required)
+            
+            .mb-3
+              label.form-label(for="stuid") 學號：(必填，7碼數字，例：1130101)
+              input#stuid.form-control(type="text" name="stuid" pattern="[0-9]{7}" title="只允許輸入數字且長度為7碼" maxlength="7" required)
+              small.form-text.text-muted 格式：例如1130101
+            
+                      
+            button.btn.btn-warning.w-100(type="submit") 
+              | 取得數位學生卡 QR Code
+          
+          script.
+            // Add additional client-side validation
+            document.querySelector('form').addEventListener('submit', function(e) {
+              const name = document.getElementById('name').value;
+              const id_number = document.getElementById('id_number').value;
+              const stuid = document.getElementById('stuid').value;
+
+              
+              // Validate name (Chinese, English, numbers, underscore)
+              if (!/^[a-zA-Z0-9\u4e00-\u9fa5_]+$/.test(name)) {
+                alert('姓名只能輸入中英文數字和_');
+                e.preventDefault();
+                return;
+              }
+              
+              // Validate id number (English, numbers)
+              if (!/^[a-zA-Z0-9_]+$/.test(id_number)) {
+                alert('英文名字只能輸入英文與數字');
+                e.preventDefault();
+                return;
+              }
+              
+              // Validate student id (7 digits)
+              if (!/^[0-9]{7}$/.test(stuid)) {
+                alert('學號必須是7碼數字');
+                e.preventDefault();
+                return;
+              }
+             
+            });
+
+

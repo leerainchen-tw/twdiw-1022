@@ -1,0 +1,146 @@
+extends layout
+
+block content
+
+  h5.text-left  數位憑證場景創新賽
+  h1.text-left 里仁高中-實驗室
+  img.img-fluid.d-block.rounded.mb-4(src="/images/lab.jpg" alt="rain_school" style="max-width: 400px")
+
+  ul.nav.nav-tabs.mb-4
+    li.nav-item
+      a.nav-link(href="/") 申請學生卡
+    li.nav-item
+      a.nav-link(href="/resta_checkin") 餐廳（驗證)
+    li.nav-item
+      a.nav-link(href="/library_checkin") 圖書館(驗證)
+    li.nav-item
+      a.nav-link.active(href="/lab_checkin") 實驗室(驗證)
+    li.nav-item
+      a.nav-link(href="/gym_checkin") 體育館(驗證)
+
+
+  .card.mb-4.shadow-sm
+    .card-body
+      .alert.alert-primary.mb-4
+        h3.h5.fw-bold.mb-3 實驗室說明
+        p.text-secondary
+          | 提供實驗室借用服務。
+
+
+          h3.h5.fw-bold.mb-3.d-flex.align-items-center
+            span.badge.bg-success.rounded-circle.me-2.p-2 
+            | 申請使用實驗室
+
+          .mb-4
+            form#checkinForm.mx-auto(style="max-width: 240px")
+              button#submitBtn.btn.btn-warning.w-100(type="submit") 
+                | 送出申請
+
+              #qrcodeContainer.text-center.mt-3(style="display:none")
+                a#qrcodeLink(href="#")
+                  img#qrcode.img-fluid.mb-2
+                p.text-muted.small 請使用數位皮夾掃描QR Code進行驗證
+                .mt-3
+                  a#deeplink.btn.btn-primary(href="#")
+                    i.fas.fa-mobile-alt.me-2
+                    | 如果是用有裝數位皮夾的手機 請點這裡或QRCode 認證授權
+                
+            if status === 'success'
+              br
+              #sucmsg.alert.alert-success.alert-dismissible.fade.show.mb-4(role="alert")
+                i.fas.fa-check-circle.me-2
+                | 已成功送出申請
+                button.btn-close(type="button" data-bs-dismiss="alert" aria-label="Close")
+            script.
+              // Initialize page functionality when document is ready
+              document.addEventListener('DOMContentLoaded', function() {
+                // Scroll to the section with "三" when hash is #message
+                if((window.location.href+"").indexOf("status=success")!=-1) {
+                  document.querySelector('#sucmsg').scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                  });
+                }
+              });
+              
+              const form = document.getElementById('checkinForm');
+              const qrcodeContainer = document.getElementById('qrcodeContainer');
+              const qrcodeImg = document.getElementById('qrcode');
+              let pollingInterval;
+              let currentTransactionId;
+              
+              form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                document.getElementById('submitBtn').innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>送出中 請稍後...';
+
+                // Scroll to QR code section after submit
+                try {
+                  const response = await fetch('/getQRCode', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ subsidyType: 'lab' })
+                  });
+                  
+                  if (!response.ok) throw new Error('Failed to get QR code');
+                  
+                  const data = await response.json();
+                  currentTransactionId = data.transaction_id;
+                  qrcodeImg.src = data.qrcode;
+                  document.getElementById('qrcodeLink').href = data.auth_uri;
+                  document.getElementById('deeplink').href = data.auth_uri;
+                  qrcodeContainer.style.display = 'block';
+                  document.getElementById('submitBtn').innerHTML = '<i class="fas fa-undo me-2"></i>取消申請';
+                  
+
+                  document.getElementById('submitBtn').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                  // Start polling for results every 5 seconds
+                  console.log('Starting polling for transactionId:', currentTransactionId);
+                  pollingInterval = setInterval(async () => {
+                    console.log('Polling for status...');
+                    try {
+                      const pollResponse = await fetch('/checkStatus', {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ transaction_id: currentTransactionId })
+                      });
+                      
+                      if (!pollResponse.ok) {
+                        console.error('Polling fetch failed with status:', pollResponse.status);
+                        return;
+                      }
+
+                      const result = await pollResponse.json();
+                      console.log('Polling result:', result);
+                      if (result.verified) {
+                        console.log('Verification successful, clearing polling interval.');
+                        clearInterval(pollingInterval);
+                        window.location.href = window.location.pathname + '?status=success';
+                      } else if (result.error) {
+                        console.log('Verification error:', result.error);
+                      }
+                    } catch (err) {
+                      console.error('Polling error:', err);
+                    }
+                  }, 10000);
+
+                  document.getElementById('submitBtn').onclick = (e) => {
+                    e.preventDefault();
+                    console.log('Cancelling polling interval.');
+                    clearInterval(pollingInterval);
+                    document.getElementById('submitBtn').innerHTML = '<i class="fas fa-heart me-2"></i>送出申請';
+                    document.getElementById('submitBtn').onclick = null;
+                    qrcodeContainer.style.display = 'none';
+                  };
+                  
+                } catch (err) {
+                  console.error('Error:', err);
+                  alert('獲取QR碼時發生錯誤，請稍後再試');
+                }
+              });
+
