@@ -32,7 +32,7 @@ cp .env.example .env
 
 3. 開啟瀏覽器訪問
    ```
-   http://localhost:3000
+   https://localhost
    ```
 
 服務啟動後即可開始測試發行卡片功能。
